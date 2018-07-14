@@ -19,50 +19,49 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using FlightGraph.Model;
 
 namespace FlightGraph
 {
-    class Program
+    internal class Program
     {
         private enum File { GraphFile, SearchFile, ResultsFile };
         private enum Search { From, To, Comparator };
 
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
 
             string[] files = GetFiles();
-            //string[] files = new string[] { "graph.txt", "search.txt", "rs.txt" };
 
             try
             {
                 Graph flights = new Graph(files[(int)File.GraphFile]);
-                List<String[]> searches = GetSearchFlights(files[(int)File.SearchFile]);
+                var searches = GetSearchFlights(files[(int)File.SearchFile]);
                 StreamWriter outputFile = new StreamWriter(files[(int)File.ResultsFile]);
 
                 using (outputFile)
                 {
                     // find shortest paths for every flight
-                    for (int flight = 0; flight < searches.Count; flight++)
+                    for (var flight = 0; flight < searches.Count; flight++)
                     {
                         // setup data to find the shortest path(s)
-                        String from = searches[flight][(int)Search.From],
-                               to = searches[flight][(int)Search.To],
-                               comparator = searches[flight][(int)Search.Comparator].Equals(Graph.COST) ? "COST" : "TIME",
-                               flightInfo = string.Format("FLIGHT {0}: from {1} to {2} (by {3})\r\n",
-                                                    flight + 1, from.ToUpper(), to.ToUpper(), comparator);
+                        string from = searches[flight][(int) Search.From],
+                            to = searches[flight][(int) Search.To],
+                            comparator = searches[flight][(int) Search.Comparator].Equals(Graph.COST) ? "COST" : "TIME",
+                            flightInfo = $"FLIGHT {flight + 1}: from {from.ToUpper()} to {to.ToUpper()} (by {comparator})\r\n";
 
                         // display flight info
                         Console.Write(flightInfo);
                         outputFile.Write(flightInfo);
 
                         // find shortest paths
-                        String[] results = flights.FindShortestPath(from, to, searches[flight][(int)Search.Comparator]);
+                        var results = flights.FindShortestPath(from, to, searches[flight][(int)Search.Comparator]);
 
                         // print paths to the screen and to the output file
-                        for (int path = 0; path < results.Length; path++)
+                        for (var path = 0; path < results.Length; path++)
                         {
-                            Console.Write("Path {0}: {1}", path + 1, results[path]);
-                            outputFile.Write("Path {0}: {1}", path + 1, results[path]);
+                            Console.Write($"Path {path + 1}: {results[path]}");
+                            outputFile.Write($"Path {path + 1}: {results[path]}");
                         }
 
                         Console.WriteLine();
@@ -72,55 +71,39 @@ namespace FlightGraph
             }
             catch (FileNotFoundException)
             {
-                Console.WriteLine("Cannot open at least 1 of these files:" +
-                        "\n\t'{0}'\n\t'{1}'\n\t'{2}", files[0], files[1], files[2]);
+                Console.WriteLine($"Cannot open at least 1 of these files: \n\t'{files[0]}'\n\t'{files[1]}'\n\t'{files[2]}");
             }
-        }   // end Main
+        }   
+        
 
-
-        /***
-         * method: getSearchFlights
-         * read file containing the flights
-         * @param fileName: name of input file
-         * @return array of flights
-         */
-        private static List<String[]> GetSearchFlights(String fileName)
+        private static List<string[]> GetSearchFlights(string fileName)
         {
-            List<String[]> searches = new List<String[]>();
+            var searches = new List<string[]>();
 
-            try
+            StreamReader iFile = new StreamReader(fileName);
+
+            using (iFile)
             {
-                StreamReader iFile = new StreamReader(fileName);
+                int count = int.Parse(iFile.ReadLine() ?? throw new InvalidOperationException());
 
-                using (iFile)
+                for (int i = 0; i < count; i++)
                 {
-                    int count = int.Parse(iFile.ReadLine());
-
-                    for (int i = 0; i < count; i++)
+                    string input = iFile.ReadLine();
+                    if (input != null)
                     {
-                        string input = iFile.ReadLine();
                         string[] data = input.Split('|');
                         searches.Add(data);
                     }
                 }
             }
-            catch (FileNotFoundException)
-            {
-                throw;
-            }
 
             return searches;
         }
 
-
-        /***
-         * method: GetFiles
-         * get the file names from the user to run the program
-         * @return an array of string containing the names of the files
-         */
+        
         private static string[] GetFiles()
         {
-            string[] files = new string[3];
+            var files = new string[3];
 
             Console.Write("Graph file name:  ");
             files[(int)File.GraphFile] = Console.ReadLine();

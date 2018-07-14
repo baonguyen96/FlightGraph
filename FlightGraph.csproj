@@ -41,7 +41,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Graph.cs" />
+    <Compile Include="Model\Edge.cs" />
+    <Compile Include="Model\Graph.cs" />
+    <Compile Include="Model\Vertex.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -49,9 +51,9 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="graph.txt" />
-    <Content Include="search.txt" />
-    <Content Include="shortestPaths.txt" />
+    <Content Include="Data\graph.txt" />
+    <Content Include="Data\search.txt" />
+    <Content Include="Data\shortestPaths.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
